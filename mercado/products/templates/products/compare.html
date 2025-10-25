@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Comparar Productos{% endblock %}
+
+{% block content %}
+    <h2>Comparar Productos</h2>
+
+    <div class="alert alert-info">
+        Selecciona productos para comparar precios, descripciones e imágenes.
+    </div>
+
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="text-muted">Sin imagen</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description|truncatewords:15 }}</p>
+                        <p class="card-text"><strong>${{ product.price }}</strong></p>
+                        <p class="text-muted">Por: {{ product.user.username }}</p>
+                        <div class="form-check">
+                            <input class="form-check-input compare-checkbox" type="checkbox" value="{{ product.id }}" id="product_{{ product.id }}">
+                            <label class="form-check-label" for="product_{{ product.id }}">
+                                Comparar
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No hay productos disponibles para comparar.</p>
+        {% endfor %}
+    </div>
+
+    <button class="btn btn-success mt-3" id="compare-btn" disabled>Comparar Seleccionados</button>
+{% endblock %}
+
+{% block extra_js %}
+        <script src="{% static 'js/compare.js' %}"></script>
+{% endblock %}
