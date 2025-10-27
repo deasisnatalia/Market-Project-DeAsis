@@ -3,6 +3,10 @@ from django.contrib.auth.decorators import login_required
 from .models import Product
 from .forms import ProductForm
 
+def home(request):
+    products = Product.objects.all().order_by('-created_at')[:6]
+    return render(request, 'products/home.html', {'products':products})
+
 @login_required
 def create_product(request):
     if request.method == 'POST':

@@ -1,16 +1,20 @@
 {% extends 'base.html' %}
 
-{% load static %}
-
-{% block title %}Comparar Productos{% endblock %}
+{% block title %}Inicio{% endblock %}
 
 {% block content %}
-    <h2>Comparar Productos</h2>
-
-    <div class="alert alert-info">
-        Seleccione dos o mas productos para comparar precios
+    <div class="jumbotron bg-primary text-white p-5 rounded">
+        <h1 class="display-4">Bienvenido al mercado de algo</h1>
+        <p class="lead">Preparate para encontrar los mejores productos de lo que se te ocurra</p>
+        {% if not user.is_authenticated %}
+            <a class="btn btn-light btn-lg" href="{% url 'users:signup' %}" role="button">Registrate free</a>
+            <a class="btn btn-outline-light btn-lg" href="{% url 'users:login' %}" role="button">Inicia sesion</a>
+        {% else %}
+            <a class="btn btn-light btn-lg" href="{% url 'products:create' %}" role="button">Crea tu producto</a>
+        {% endif %}
     </div>
 
+    <h2 class="mt-5">Los ultimos Productos</h2>
     <div class="row">
         {% for product in products %}
             <div class="col-md-4 mb-3">
@@ -24,26 +28,18 @@
                     {% endif %}
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.description|truncatewords:15 }}</p>
+                        <p class="card-text">{{ product.description|truncatewords:10 }}</p>
                         <p class="card-text"><strong>${{ product.price }}</strong></p>
                         <p class="text-muted">Por: {{ product.user.username }}</p>
-                        <div class="form-check">
-                            <input class="form-check-input compare-checkbox" type="checkbox" value="{{ product.id }}" id="product_{{ product.id }}">
-                            <label class="form-check-label" for="product_{{ product.id }}">
-                                Seleccionar
-                            </label>
-                        </div>
                     </div>
                 </div>
             </div>
         {% empty %}
-            <p>No hay productos disponibles para comparar.</p>
+            <p>No hay productos uwu</p>
         {% endfor %}
     </div>
 
-    <button class="btn btn-success mt-3" id="compare-btn" disabled>Comparar Seleccionados</button>
-{% endblock %}
-
-{% block extra_js %}
-        <script src="{% static 'js/compare.js' %}"></script>
+    <div class="text-center mt-4">
+        <a href="{% url 'products:list' %}" class="btn btn-primary">Ver todos los productos</a>
+    </div>
 {% endblock %}

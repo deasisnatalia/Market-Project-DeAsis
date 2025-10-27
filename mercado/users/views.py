@@ -10,7 +10,7 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home') #cambiar
+            return redirect('products:home')
     else:
         form = UserCreationForm()
     return render(request, 'users/signup.html', {'form': form})

@@ -1,19 +1,24 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Habilitar/deshabilitar botón de comparar
+    // Habilitar/deshabilitar boton de comparar
     const checkboxes = document.querySelectorAll('.compare-checkbox');
     const compareBtn = document.getElementById('compare-btn');
 
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const checked = document.querySelectorAll('.compare-checkbox:checked');
-            compareBtn.disabled = checked.length === 0;
+            compareBtn.disabled = checked.length < 2;;
         });
     });
 
-    // Acción del botón de comparar
+    // Accion del boton de comparar
     compareBtn.addEventListener('click', function() {
         const selectedCheckboxes = document.querySelectorAll('.compare-checkbox:checked');
         const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+        if (selectedIds.length < 2) {
+            alert('Debe seleccionar al menos 2 productos para comparar');
+            return;
+        }
 
         // Obtener datos de los productos seleccionados
         const selectedProducts = [];
