@@ -10,7 +10,8 @@ urlpatterns = [
 
     #APIs REST
     path('api/users/', include('users.api.urls')),
-    path('api/products/', include('products.api.urls'))
+    path('api/products/', include('products.api.urls')),
+    path('api/scraping/', include('scraping.api.urls')),
 
 ]
 

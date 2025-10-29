@@ -16,12 +16,23 @@
             <a class="navbar-brand" href="{% url 'products:home' %}">Mercadoo</a>
             <div class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
-                    <a class="nav-link" href="{% url 'products:create' %}">Crear</a>
-                    <a class="nav-link" href="{% url 'products:compare' %}">Comparar</a>
-                    <form class="d-inline" method="post" action="{% url 'users:logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="nav-link">Salir ({{ user.username }})</button>
-                    </form>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'products:compare' %}">Comparar</a></li>
+                            <li><a class="dropdown-item" href="{% url 'products:my_products' %}">Mis productos</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'users:logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">Salir</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
                 {% else %}
                     <a class="nav-link" href="{% url 'users:login' %}">Entrar</a>
                     <a class="nav-link" href="{% url 'users:signup' %}">Registrarse</a>

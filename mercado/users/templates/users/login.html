@@ -1,15 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h2>Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form>
-    <a href="{% url 'users:signup' %}">¿No tienes cuenta? Regístrate aquí</a>
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+    <main class="form-signin w-50 m-auto">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <h2 class="text-center mb-4">Iniciar Sesion</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="id_username" name="username" placeholder="Nombre de Usuario" required>
+                        <label for="id_username">Usuario</label>
+                    </div>
+                
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="id_password" name="password" placeholder="Contraseña" required>
+                        <label for="id_password">Contraseña</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">Entrar</button>
+                
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {{ form.errors }}
+                        </div>
+                    {% endif %}
+                </form>
+
+                <div class="text-center mt-3">
+                    <small>¿No tenes cuenta? <a href="{% url 'users:signup' %}">Registrate aca</a></small>
+                </div>
+            </div>
+        </div>
+    </main>
 </body>
 </html>

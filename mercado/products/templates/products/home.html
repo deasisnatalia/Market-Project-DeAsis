@@ -6,12 +6,6 @@
     <div class="jumbotron bg-primary text-white p-5 rounded">
         <h1 class="display-4">Bienvenido al mercado de algo</h1>
         <p class="lead">Preparate para encontrar los mejores productos de lo que se te ocurra</p>
-        {% if not user.is_authenticated %}
-            <a class="btn btn-light btn-lg" href="{% url 'users:signup' %}" role="button">Registrate free</a>
-            <a class="btn btn-outline-light btn-lg" href="{% url 'users:login' %}" role="button">Inicia sesion</a>
-        {% else %}
-            <a class="btn btn-light btn-lg" href="{% url 'products:create' %}" role="button">Crea tu producto</a>
-        {% endif %}
     </div>
 
     <h2 class="mt-5">Los ultimos Productos</h2>

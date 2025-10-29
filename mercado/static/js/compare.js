@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const checked = document.querySelectorAll('.compare-checkbox:checked');
-            compareBtn.disabled = checked.length < 2;;
+            compareBtn.disabled = checked.length < 1;;
         });
     });
 
@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedCheckboxes = document.querySelectorAll('.compare-checkbox:checked');
         const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
 
-        if (selectedIds.length < 2) {
-            alert('Debe seleccionar al menos 2 productos para comparar');
+        if (selectedIds.length < 1) {
+            alert('Debe seleccionar al menos 1 producto para comparar');
             return;
         }
 
@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <tr>
                     <td>${product.name}</td>
                     <td>${product.price}</td>
+                    <td id="external-price-${product.id}">Cargando...</td>
                 </tr>
             `;
         });
@@ -69,9 +70,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <tr>
                                             <th>Nombre</th>
                                             <th>Precio</th>
+                                            <th>Precios externos</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="comparison-table-body">
                                         ${tableRows}
                                     </tbody>
                                 </table>
@@ -89,6 +91,34 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalElement = document.getElementById('comparisonModal');
         const modal = new bootstrap.Modal(modalElement);
         modal.show();
+
+        // Hacer las peticiones de scraping para cada producto
+        products.forEach(product => {
+            fetch(`/api/scraping/comparar/${encodeURIComponent(product.name)}/`)
+                .then(response => response.json())
+                .then(data => {
+                    const cell = document.getElementById(`external-price-${product.id}`);
+                    if (data.fuentes && data.fuentes.length > 0) {
+                        let preciosHtml = '<ul class="list-unstyled mb-0">';
+                        data.fuentes.forEach(fuente => {
+                            preciosHtml += `
+                                <li>
+                                    <strong>${fuente.supermercado}:</strong> ${fuente.precio}
+                                </li>
+                            `;
+                        });
+                        preciosHtml += '</ul>';
+                        cell.innerHTML = preciosHtml;
+                    } else {
+                        cell.textContent = 'No disponible';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al scrapear:', error);
+                    const cell = document.getElementById(`external-price-${product.id}`);
+                    cell.textContent = 'Error al cargar';
+                });
+        });
 
         // Eliminar el modal del DOM cuando se cierre
         modalElement.addEventListener('hidden.bs.modal', function () {

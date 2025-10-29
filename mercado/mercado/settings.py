@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     #Project apps
     'users',
     'products',
+    'scraping',
 ]
 
 
@@ -122,6 +123,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+#users
 AUTH_USER_MODEL = 'users.CustomUser'
+
+#url redirect
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+
 
 
