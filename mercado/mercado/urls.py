@@ -7,6 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('products.urls')),
     path('users/', include('users.urls')),
+    path('accounts/', include('allauth.urls')),
 
     #APIs REST
     path('api/users/', include('users.api.urls')),
