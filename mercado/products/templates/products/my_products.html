@@ -1,33 +1,176 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Mis Productos{% endblock %}
 
 {% block content %}
     <h2>Mis Productos</h2>
-
-    <div class="row">
-        {% for product in products %}
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                    {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <span class="text-muted">Sin imagen</span>
-                        </div>
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.description|truncatewords:15 }}</p>
-                        <p class="card-text"><strong>${{ product.price }}</strong></p>
-                        <p class="text-muted">Creado: {{ product.created_at|date:"d/m/Y" }}</p>
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            <p>No has creado productos aún.</p>
-        {% endfor %}
+    
+    <!-- Botn para abrir el modal de crear producto -->
+    <div class="d-flex justify-content-end mb-3">
+      <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createModal">
+        +
+      </button>
     </div>
-
-    <a href="{% url 'products:create' %}" class="btn btn-primary">Crear Producto</a>
-{% endblock %}
+    <div id="products-list-container">
+      {% include 'products/my_products_list.html' %}
+    </div>
+    
+    
+    <!-- paginación -->
+    {% if products.has_other_pages %}
+    <div class="d-flex justify-content-center mt-4">
+      <nav aria-label="Navegación de productos">
+        <ul class="pagination">
+          {% if products.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1">&laquo; Primero</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ products.previous_page_number }}">Anterior</a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">&laquo; Primero</span>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link">Anterior</span>
+          </li>
+          {% endif %}
+    
+          <li class="page-item active">
+            <span class="page-link">
+              Página {{ products.number }} de {{ products.paginator.num_pages }}
+            </span>
+          </li>
+    
+          {% if products.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ products.next_page_number }}">Siguiente</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ products.paginator.num_pages }}">Último &raquo;</a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Siguiente</span>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link">Último &raquo;</span>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+    
+    
+    <!-- Modal de Crear producto -->
+    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createModalLabel">Agregar Producto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+    
+          <form id="create-product-form" method="post" action="{% url 'products:create_product_ajax' %}"
+            enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="modal-body">
+              <div id="create-form-errors" class="alert alert-danger d-none"></div>
+    
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="id_name" name="name" placeholder=" " required>
+                <label for="id_name">Nombre</label>
+              </div>
+    
+              <div class="form-floating mb-3">
+                <input type="number" class="form-control" id="id_price" name="price" step="0.01" min="0" placeholder=" "
+                  required>
+                <label for="id_price">Precio en ARS</label>
+                <small class="form-text text-muted">Usar (.) como separador decimal</small>
+              </div>
+    
+              <div class="form-floating mb-3">
+                <textarea class="form-control" id="id_description" name="description" rows="3" placeholder=" "></textarea>
+                <label for="id_description">Descripción</label>
+              </div>
+    
+              <div class="form-floating mb-3">
+                <input type="number" class="form-control" id="id_stock" name="stock" min="0" value="0" placeholder=" "
+                  required>
+                <label for="id_stock">Stock</label>
+              </div>
+    
+              <div class="mb-3">
+                <label for="id_image" class="form-label">Imagen</label>
+                <input type="file" class="form-control" id="id_image" name="image" accept="image/*">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Crear Producto</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal para editar producto -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Editar Producto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="edit-product-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="modal-body">
+              <div id="edit-form-errors" class="alert alert-danger d-none"></div>
+              <input type="hidden" id="edit-product-id" name="product_id">
+    
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="edit_name" name="name" placeholder=" " required>
+                <label for="edit_name" class="form-label">Nombre</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="number" class="form-control" id="edit_price" name="price" step="0.01" min="0" placeholder=" "
+                  required>
+                <label for="edit_price" class="form-label">Precio</label>
+              </div>
+              <div class="form-floating mb-3">
+                <textarea class="form-control" id="edit_description" name="description" rows="3" placeholder=" "></textarea>
+                <label for="edit_description" class="form-label">Descripción</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="number" class="form-control" id="edit_stock" name="stock" min="0" placeholder=" " required>
+                <label for="edit_stock" class="form-label">Stock</label>
+              </div>
+              <div class="mb-3">
+                <label for="edit_image" class="form-label">Imagen (dejar vacío para mantener la actual)</label>
+                <input type="file" class="form-control" id="edit_image" name="image" accept="image/*">
+                <div id="current-image-edit"></div>
+              </div>
+    
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    {% endblock %}
+    {% block extra_js %}
+    <script>
+      window.MyApp = window.MyApp || {};
+      window.MyApp.urls = {
+        createProduct: "{% url 'products:create_product_ajax' %}",
+        editProductPattern: "{% url 'products:edit_product_ajax' 0 %}",
+      };
+    </script>
+    <script src="{% static 'js/products_management.js' %}"></script>
+    {% endblock %}

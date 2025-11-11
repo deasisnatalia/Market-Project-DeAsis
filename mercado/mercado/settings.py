@@ -70,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'products.context_processors.cart_context',
             ],
         },
     },
@@ -174,3 +175,6 @@ SOCIALACCOUNT_PROVIDERS = {
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
+#MercadoPago
+MERCADOPAGO_ACCESS_TOKEN = 'APP_USR-7709248867197169-111103-ce6f78b5db066e8ae5eef780e0a80d97-276257017'

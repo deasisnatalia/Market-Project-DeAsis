@@ -1,0 +1,72 @@
+{% if products %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                                <span class="text-muted">Sin imagen</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.description|truncatewords:10 }}</td>
+                        <td>${{ product.price }}</td>
+                        <td>{{ product.stock }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-warning me-1 open-edit-modal"
+                                    data-pk="{{ product.pk }}"
+                                    data-name="{{ product.name }}"
+                                    data-price="{{ product.price }}"
+                                    data-description="{{ product.description|escape }}"
+                                    data-stock="{{ product.stock }}"
+                                    data-image="{% if product.image %}{{ product.image.url|escape }}{% endif %}">
+                                Editar
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.pk }}">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>No tienes productos aún.</p>
+{% endif %}
+
+<!-- Incluimos los modales de eliminación aquí también, porque se recargará este fragmento -->
+{% for product in products %}
+    <div class="modal fade" id="deleteModal{{ product.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ product.pk }}" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel{{ product.pk }}">Confirmar Eliminación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro de que deseas eliminar el producto "<strong>{{ product.name }}</strong>"?
+          </div>
+          <div class="modal-footer">
+            <form method="post" action="{% url 'products:delete' product.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endfor %}

@@ -1,3 +1,5 @@
+//Logica del scraping
+
 document.addEventListener('DOMContentLoaded', function() {
     // Habilitar/deshabilitar boton de comparar
     const checkboxes = document.querySelectorAll('.compare-checkbox');

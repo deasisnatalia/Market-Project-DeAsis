@@ -57,6 +57,12 @@ body {
     margin-top: 15px;
 }
 
+/* boton deshabilitado */
+.update-quantity-btn:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
 /* Pie de pag */
 footer {
     margin-top: 40px;

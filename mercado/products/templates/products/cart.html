@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Carrito{% endblock %}
+
+{% block content %}
+    <h2>Tu Carrito</h2>
+
+    <!-- Envuelve el contenido dinámico en un div con id -->
+    <div id="cart-items-content">
+        {% if items %}
+            {% for item in items %}
+                <div class="d-flex align-items-start mb-3 border-bottom pb-3" data-item-id="{{ item.id }}" data-product-stock="{{ item.product.stock }}">
+                    <!-- Imagen del producto -->
+                    <div class="me-3">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                        {% else %}
+                            <div style="width: 80px; height: 80px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 5px;">
+                                <span class="text-muted">Sin imagen</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Detalles del producto -->
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1">{{ item.product.name }} (Cod {{ item.product.id }})</h5>
+                        
+                        <!-- Controles de cantidad y precio -->
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-outline-secondary btn-sm me-2 update-quantity-btn" data-change="-1">-</button>
+                                <span class="mx-2 quantity-display" style="width: 40px; text-align: center;">{{ item.quantity }}</span>
+                                <button class="btn btn-outline-secondary btn-sm ms-2 update-quantity-btn" data-change="1">+</button>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="me-3">${{ item.get_total_price|floatformat:2 }}</span>
+                                <button class="btn btn-link p-0 text-danger remove-item-btn">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <small class="text-muted mt-1 d-block">Stock disponible: {{ item.product.stock }} unidades</small>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Subtotal -->
+            <div class="d-flex justify-content-between mt-3 pt-3 border-top">
+                <strong>Subtotal</strong>
+                <strong>${{ total|floatformat:2 }}</strong>
+            </div>
+        {% else %}
+            <p>Tu carrito está vacío.</p>
+        {% endif %}
+    </div>
+
+{% endblock %}
