@@ -1,270 +1,166 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Michi Mercado{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Michi Mercado</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'products:home' %}">Michi Mercado</a>
-            <div class="navbar-nav ms-auto d-flex align-items-center">
-                {% if user.is_authenticated %}
-                    <li class="nav-item me-3">
-                        <a class="nav-link position-relative" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
-                            <i class="fas fa-shopping-cart fa-lg"></i>
-                            <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                0
-                            </span>
-                        </a>
-                    </li>
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            ¡Hola, {{ user.username }}!
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'products:compare' %}">Comparar</a></li>
-                            <li><a class="dropdown-item" href="{% url 'products:my_products' %}">Mis productos</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="post" action="{% url 'users:logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item text-danger">Salir</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                {% else %}
-                    <a class="nav-link" href="{% url 'users:login' %}">Entrar</a>
-                    <a class="nav-link" href="{% url 'users:signup' %}">Registrarse</a>
-                {% endif %}
+<body>
+    <!-- CHAT BUTTON -->
+    <button id="chat-btn" class="btn btn-primary rounded-circle" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; width: 60px; height: 60px; font-size: 20px;">
+        <i class="bi bi-wechat"></i>
+    </button>
+    <!-- CHAT MODAL -->
+    <div class="modal fade chat-modal" id="chatModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Asistente Michi IA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="chat-messages" style="height: 300px; overflow-y: scroll; padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
+                        <div class="alert alert-info">¡Hola! Soy tu asistente Michi IA. Puedo ayudarte con dudas sobre la app.</div>
+                    </div>
+                    <div class="input-group mt-3">
+                        <input type="text" id="chat-input" class="form-control" placeholder="Haz una pregunta...">
+                        <button class="btn btn-primary" id="send-btn">Enviar</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <main class="container mt-4">
-        {% block content %}{% endblock %}
-    </main>
-    <!-- Modal del Carrito -->
-    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg"> <!-- modal-lg para hacerlo un poco más ancho -->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="cartModalLabel">Tu Carrito</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <!-- Aquí se cargará el contenido dinámicamente -->
-              <div id="cart-items-container">
-                  <p class="text-center">Cargando carrito...</p>
-              </div>
-          </div>
-          <div class="modal-footer">
-            <!-- Botón Finalizar Compra -->
-            <button type="button" class="btn btn-success" id="checkout-btn">Pagar</button>
-          </div>
-        </div>
-      </div>
     </div>
-    <footer class="mt-5">
-        <div class="container">
-            <p>&copy; 2025 Michi Mercado. Todos los derechos reservados.</p>
+    <div class="wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <!-- LOGO -->
+                <a class="navbar-brand d-flex align-items-center" href="{% url 'products:home' %}">
+                    <i class="bi bi-gitlab me-2"></i>
+                    Michi Mercado
+                </a>
+                <!-- BUSCADOR -->
+                <div class="d-flex justify-content-center flex-grow-1">
+                    <form class="d-flex position-relative" role="search" style="width: 100%; max-width: 500px;">
+                        <input id="searchInput" class="form-control" type="text" placeholder="Buscar michis..." autocomplete="off">
+                        <div id="searchResults" class="list-group position-absolute w-100 search-animate" style="top: 100%; z-index: 9999; max-height: 250px; overflow-y: auto;"></div>
+                    </form>
+                </div>
+                <!-- ITEMS NAV -->
+                <div class="navbar-nav ms-auto d-flex align-items-center">
+                    <ul class="navbar-nav ms-auto d-flex align-items-center">
+                        {% if user.is_authenticated %}
+                        <!-- SCRAPING -->
+                        <li class="nav-item me-3">
+                            <a class="nav-link me-3" href="{% url 'products:compare' %}">Comparar</a>
+                        </li>
+                        <!-- CART -->
+                        <li class="nav-item me-3">
+                            <a class="nav-link position-relative" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
+                                <i class="fas fa-shopping-cart fa-lg"></i>
+                                <span id="cart-count"
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+                        <!-- DROPDOWN MENU -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                ¡Hola, {{ user.username }}!
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'products:my_products' %}">Mis productos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'budgets:historial_presupuestos' %}">Historial</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <form method="post" action="{% url 'users:logout' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item text-danger">Salir</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                        {% else %}
+                        <!-- LOGIN Y SIGNUP -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:login' %}">Entrar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:signup' %}">Registrarse</a>
+                        </li>
+                        {% endif %}
+                        <!-- DARK/LIGHT MODE -->
+                        <li class="nav-item me-3">
+                            <button id="theme-toggle" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-moon" id="theme-icon"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container mt-4">
+            {% block content %}{% endblock %}
+        </main>
+        <!-- CART MODAL -->
+        <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cartModalLabel">Tu Carrito</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div id="cart-items-content">
+                            <p class="text-center">Cargando carrito...</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="generarPDF()">Descargar PDF</button>
+                        <!--Finalizar Compra redirige a mercado pago-->
+                        <button type="button" class="btn btn-success" id="checkout-btn">Pagar</button>
+                    </div>
+                </div>
+            </div>
         </div>
-    </footer>
-
-    {% block extra_js %}{% endblock %}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchCartCount(); // Carga el conteo inicial
-
-            // Escucha el evento 'shown.bs.modal' para el modal del carrito
-            document.getElementById('cartModal').addEventListener('shown.bs.modal', function () {
-                console.log("Modal abierto, cargando contenido...");
-                fetchCartContents();
-            });
-
-            // --- Función para cargar el contenido del carrito ---
-            function fetchCartContents() {
-                console.log("Fetch a la vista del carrito iniciado...");
-                fetch('{% url "products:view_cart" %}')
-                    .then(response => {
-                        console.log("Respuesta recibida:", response.status);
-                        return response.text();
-                    })
-                    .then(html => {
-                        console.log("HTML recibido (primeros 200 chars):", html.substring(0, 200));
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-
-                        const cartContentDiv = doc.getElementById('cart-items-content');
-                        console.log("Elemento cartContentDiv encontrado:", cartContentDiv);
-
-                        if(cartContentDiv) {
-                            console.log("Contenido interno del div:", cartContentDiv.innerHTML);
-                            document.getElementById('cart-items-container').innerHTML = cartContentDiv.innerHTML;
-
-                            // Asignar eventos a los botones de actualizar cantidad
-                            document.querySelectorAll('.update-quantity-btn').forEach(button => {
-                                button.addEventListener('click', function() {
-                                    const change = parseInt(this.getAttribute('data-change'));
-                                    const itemId = this.closest('[data-item-id]').getAttribute('data-item-id');
-                                    updateQuantity(itemId, change);
-                                });
-                            });
-
-                            // Asignar eventos a los botones de eliminar
-                            document.querySelectorAll('.remove-item-btn').forEach(button => {
-                                button.addEventListener('click', function() {
-                                    const itemId = this.closest('[data-item-id]').getAttribute('data-item-id');
-                                    removeFromCart(itemId);
-                                });
-                            });
-
-                            // --- Nueva lógica: Habilitar/Deshabilitar botones '+' según stock ---
-                            document.querySelectorAll('[data-item-id]').forEach(itemDiv => {
-                                const itemId = itemDiv.getAttribute('data-item-id');
-                                const stock = parseInt(itemDiv.getAttribute('data-product-stock'));
-                                const quantityDisplay = itemDiv.querySelector('.quantity-display');
-                                const plusButton = itemDiv.querySelector('.update-quantity-btn[data-change="1"]');
-
-                                if (quantityDisplay && plusButton) {
-                                    const currentQuantity = parseInt(quantityDisplay.textContent);
-
-                                    // Si la cantidad actual es >= al stock, deshabilita el botón '+'
-                                    if (currentQuantity >= stock) {
-                                        plusButton.disabled = true;
-                                        plusButton.classList.add('btn-secondary');
-                                        plusButton.classList.remove('btn-outline-secondary');
-                                        plusButton.textContent = '=';
-                                    } else {
-                                        plusButton.disabled = false;
-                                        plusButton.classList.add('btn-outline-secondary');
-                                        plusButton.classList.remove('btn-secondary');
-                                        plusButton.textContent = '+';
-                                    }
-                                }
-                            });
-
-                        } else {
-                             document.getElementById('cart-items-container').innerHTML = '<p class="text-center">No se pudo cargar el contenido del carrito.</p>';
-                             console.error("No se encontró el elemento con id 'cart-items-content' en el HTML recibido.");
-                        }
-                    }).catch(error => {
-                        console.error('Error al cargar el contenido del carrito:', error);
-                        document.getElementById('cart-items-container').innerHTML = '<p class="text-danger">Error al cargar el carrito.</p>';
-                    });
-            }
-
-            // --- Función para actualizar la cantidad de un ítem ---
-            function updateQuantity(itemId, change) {
-                const url = `/products/update-cart-item/${itemId}/`;
-                console.log("Actualizando cantidad para ítem ID:", itemId, "con cambio:", change);
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ quantity_change: change })
-                })
-                .then(response => {
-                    console.log("Respuesta recibida:", response.status, response.statusText);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("Datos recibidos del servidor:", data);
-                    if (data.success) {
-                        // Actualiza el contador y el contenido del modal
-                        fetchCartContents(); // Recarga el contenido del modal
-                        fetchCartCount(); // Y el contador
-                    } else {
-                        // Muestra un mensaje de error más claro
-                        alert(data.error || "Ocurrió un error al actualizar la cantidad.");
-                    }
-                }).catch(error => {
-                    console.error('Error al actualizar la cantidad del ítem:', error);
-                    alert("Ocurrió un error al actualizar la cantidad. Por favor, inténtalo de nuevo.");
-                });
-            }
-            
-
-            function removeFromCart(itemId) {
-                fetch(`/products/remove-from-cart/${itemId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        fetchCartContents(); // Recarga el contenido del modal
-                        fetchCartCount(); // Y el contador
-                    }
-                }).catch(error => {
-                    console.error('Error al eliminar ítem del carrito:', error);
-                });
-            }
-
-            function fetchCartCount() {
-                fetch('{% url "products:cart_count" %}')
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('cart-count').textContent = data.count;
-                    }).catch(error => {
-                        console.error('Error al cargar el conteo del carrito:', error);
-                    });
-            }
-        });
-
-
-        // --- Función para iniciar el checkout de Mercado Pago ---
-        function checkoutMercadoPago() {
-            console.log("Iniciando checkout de Mercado Pago...");
-            fetch('{% url "products:create_preference" %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    'Content-Type': 'application/json',
-                },
-                // No enviamos cuerpo porque la vista obtiene los ítems del carrito del usuario logueado
-                // Si quisieras enviar ítems específicos, podrías hacerlo aquí
-            })
-            .then(response => {
-                console.log("Respuesta de create_preference recibida:", response.status);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Datos de preferencia recibidos:", data);
-                if (data.init_point) {
-                    // Redirige al usuario a la URL de checkout de Mercado Pago
-                    window.location.href = data.init_point;
-                } else {
-                    alert(data.error || "Ocurrió un error al iniciar el pago.");
-                }
-            })
-            .catch(error => {
-                console.error('Error al iniciar el checkout:', error);
-                alert("Ocurrió un error al iniciar el pago. Por favor, inténtalo de nuevo.");
-            });
-        }
-
-        // --- Asignar evento al botón de checkout ---
-        document.getElementById('checkout-btn').addEventListener('click', function() {
-            checkoutMercadoPago();
-        });
+        <footer>
+            &copy; 2025 Michi Mercado. Todos los derechos reservados.
+        </footer>
+    </div>
+    
+    {% block extra_js %}
+    <script>
+        window.MyApp = window.MyApp || {};
+        window.MyApp.urls = {
+            // URLs para el carrito
+            viewCart: "{% url 'products:view_cart' %}",
+            cartCount: "{% url 'products:cart_count' %}",
+            updateCartItem: "{% url 'products:update_cart_item' 1 %}".replace("1", "__ID__"),
+            removeFromCart: "{% url 'products:remove_from_cart' 1 %}".replace("1", "__ID__"),
+            // URLs para Mercado Pago
+            createPreference: "{% url 'products:create_preference' %}",
+        };
     </script>
+    <script>window.CHAT_API_URL = "{% url 'chat:chat_ia' %}";</script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/cart.js' %}"></script>
+    <script src="{% static 'js/products_management.js' %}"></script>
+    <script src="{% static 'js/chat.js' %}"></script>
+    <script src="{% static 'js/search.js' %}"></script>
+    <script src="{% static 'js/theme.js' %}"></script>
+    {% endblock %}
 </body>
 </html>

@@ -9,15 +9,14 @@
     <!-- Botn para abrir el modal de crear producto -->
     <div class="d-flex justify-content-end mb-3">
       <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createModal">
-        +
+        <i class="bi bi-plus-circle-fill"></i>
       </button>
     </div>
     <div id="products-list-container">
       {% include 'products/my_products_list.html' %}
     </div>
     
-    
-    <!-- paginación -->
+    <!-- paginacion -->
     {% if products.has_other_pages %}
     <div class="d-flex justify-content-center mt-4">
       <nav aria-label="Navegación de productos">
@@ -64,7 +63,6 @@
     </div>
     {% endif %}
     
-    
     <!-- Modal de Crear producto -->
     <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -74,8 +72,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
     
-          <form id="create-product-form" method="post" action="{% url 'products:create_product_ajax' %}"
-            enctype="multipart/form-data">
+          <form id="create-product-form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="modal-body">
               <div id="create-form-errors" class="alert alert-danger d-none"></div>
@@ -163,14 +160,15 @@
       </div>
     </div>
     
-    {% endblock %}
-    {% block extra_js %}
+{% endblock %}
+{% block extra_js %}
+    {{ block.super }}
     <script>
       window.MyApp = window.MyApp || {};
-      window.MyApp.urls = {
-        createProduct: "{% url 'products:create_product_ajax' %}",
-        editProductPattern: "{% url 'products:edit_product_ajax' 0 %}",
-      };
+      window.MyApp.urls = window.MyApp.urls || {};
+        
+      window.MyApp.urls.createProduct = "{% url 'products:create_product_ajax' %}";
+      window.MyApp.urls.editProductPattern = "{% url 'products:edit_product_ajax' 0 %}";
     </script>
     <script src="{% static 'js/products_management.js' %}"></script>
-    {% endblock %}
+{% endblock %}

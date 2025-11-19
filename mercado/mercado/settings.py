@@ -5,7 +5,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-@lvc2tlfb$(-ku24=)+g9-t0ps6%%#4o&2a!w1$9l-m&p@pl5#'
 
-DEBUG = True
+PORT = int(os.environ.get('PORT', 8000))
+
+DEBUG = False
 
 SITE_ID = 1
 
@@ -43,11 +45,14 @@ INSTALLED_APPS = [
     'users',
     'products',
     'scraping',
+    'budgets',
+    'chat',
 ]
 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -125,6 +130,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # Configuracion de archivos multimedia

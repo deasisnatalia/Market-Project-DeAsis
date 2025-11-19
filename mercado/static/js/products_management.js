@@ -1,10 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
+
     //Funcion para cargar datos del producto en el modal de editar
     function loadEditModalData(productId) {
         console.log("Cargando datos para editar producto ID:", productId);
         const editButton = document.querySelector(`button[data-pk="${productId}"]`);
         console.log("Boton encontrado:", editButton);
+        if (!productId) {
+            console.error("ID de producto no definido para edicion");
+            return;
+        }
+        if (isNaN(productId) || productId === '') {
+            console.error("ID de producto inválido:", productId);
+            return;
+        }
 
+        console.log("Cargando datos para editar producto ID:", productId);
         if (editButton) {
             const name = editButton.getAttribute('data-name');
             const price = editButton.getAttribute('data-price');
@@ -28,8 +38,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             //Actualiza la acción del formulario para apuntar a la URL
-            document.getElementById('edit-product-form').action = window.MyApp.urls.editProductPattern.replace('0', productId);
-
+            if (productId) {
+                document.getElementById('edit-product-form').action = window.MyApp.urls.editProductPattern.replace('0', productId);
+            } else {
+                console.error("No se pudo establecer la acción del formulario: ID del producto es inválido:", productId);
+                return;
+            }
             const editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
         } else {
@@ -39,7 +53,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     //Eventos de botones de editar al cargar la pagina
     function assignEditEvents() {
-        console.log("Asignando eventos a botones de edición..."); // Log de depuración
         const editButtons = document.querySelectorAll('.open-edit-modal');
         console.log("Botones encontrados:", editButtons.length);
 
@@ -47,6 +60,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (button.parentNode) {
                 button.addEventListener('click', function() {
                     const productId = this.getAttribute('data-pk');
+                    if (!productId || productId === "undefined") {
+                        console.error("Botón de edición no tiene un 'data-pk' válido:", this);
+                        return;
+                    }
                     loadEditModalData(productId);
                 });
             } else {
@@ -58,12 +75,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Asigna eventos iniciales
     assignEditEvents();
 
-    //Manejo del formulario de crear
+    // formulario de crear
     const createForm = document.getElementById('create-product-form');
     if (createForm) { 
+        console.log("Formulario de creacion encontrado");
         createForm.addEventListener('submit', function(e) {
             e.preventDefault();
-
+            console.log("Formulario de creacion interceptado"); 
+            const url = window.MyApp.urls.createProduct;
             const formData = new FormData(this);
             const errorsDiv = document.getElementById('create-form-errors');
 
@@ -88,61 +107,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
             //formatea el precio a 2 decimales y reemplaza en el formData
             formData.set('price', priceNum.toFixed(2));
-
+            console.log("URL de creación:", window.MyApp.urls.createProduct);
+            if (!window.MyApp.urls.createProduct) {
+                console.error("La URL de creación no está definida.");
+                return;
+            }
             fetch(window.MyApp.urls.createProduct, {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                }
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
             })
-            .then(response => response.json())
-            .then(data => {
+            .then((response) => response.json())
+            .then((data) => {
                 if (data.success) {
-                    const modalElement = document.getElementById('createModal');
-                    const modal = bootstrap.Modal.getInstance(modalElement);
-                    if (modal) {
-                        modal.hide();
-                    }
-
                     console.log("Creacion eitosa, actualizando lista...");
-                    alert(data.message);
+                    assignEditEvents();
 
-                    //actualiza la lista de productos
-                    document.getElementById('products-list-container').innerHTML = data.html;
-                    location.reload();
-
-                    //vuelve a asignar eventos a los nuevos botones de editar
-                    document.querySelectorAll('.open-edit-modal').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            const productId = this.getAttribute('data-pk');
-                            loadEditModalData(productId);
-                        });
-                    });
-                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById("createModal"));
+                    modal.hide();
+                    createForm.reset();
                 } else {
-                    // Muestra errores
-                    errorsDiv.classList.remove('d-none');
-                    errorsDiv.innerHTML = '<ul></ul>';
-                    const ul = errorsDiv.querySelector('ul');
-                    try {
-                        const errors = JSON.parse(data.errors);
-                        for (const field in errors) {
-                            errors[field].forEach(error => {
-                                const li = document.createElement('li');
-                                li.textContent = `${field}: ${error}`;
-                                ul.appendChild(li);
-                            });
-                        }
-                    } catch (e) {
-                        errorsDiv.innerHTML = '<p>Error al procesar los datos.</p>';
-                    }
+                    const errorDiv = document.getElementById("create-form-errors");
+                    errorDiv.classList.remove("d-none");
+                    errorDiv.innerHTML = data.error;
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                errorsDiv.classList.remove('d-none');
-                errorsDiv.innerHTML = '<p>Error al procesar la solicitud.</p>';
+                console.error(error);
             });
         });
     }
@@ -150,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
     //Formulario de edicion
     const editForm = document.getElementById('edit-product-form');
     if (editForm) {
+        console.log("Formulario de edicion encontrado");
         editForm.addEventListener('submit', function(e) {
             e.preventDefault();
 

@@ -5,11 +5,11 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 from django.conf import settings
+from django.db.models import Q
 from .models import Product, Cart, CartItem
 from .forms import ProductForm
 import json
 import mercadopago
-
 
 
 #home
@@ -59,30 +59,45 @@ def create_product(request):
 @login_required
 def create_product_ajax(request):
     """Vista para crear un producto vía AJAX."""
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            product = form.save(commit=False)
-            product.user = request.user
-            product.save()
-            products = Product.objects.filter(user=request.user)
-            cart, created = Cart.objects.get_or_create(user=request.user)
-            cart_item_count = sum(item.quantity for item in cart.items.all())
+    if request.method == 'POST' and request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        try:
+            name = request.POST.get("name")
+            price = request.POST.get("price")
+            description = request.POST.get("description")
+            stock = request.POST.get("stock")
+            image = request.FILES.get("image")
 
-            html = render_to_string('products/my_products_list.html', {
-                'products': products,
-                'cart_item_count': cart_item_count
-            }, request=request)
+            if not name or not price:
+                return JsonResponse({"success": False, "error": "Nombre y precio son obligatorios."})
+            try:
+                price = float(price)
+                if price < 0:
+                    return JsonResponse({"success": False, "error": "El precio debe ser positivo."})
+                stock = int(stock) if stock else 0
+                if stock < 0:
+                    return JsonResponse({"success": False, "error": "El stock no puede ser negativo."})
+            except (ValueError, TypeError):
+                return JsonResponse({"success": False, "error": "Precio o stock inválidos."})
+            
+            product = Product.objects.create(
+                user=request.user,
+                name=name,
+                price=price,
+                description=description,
+                stock=stock,
+                image=image
+            )
 
-            return JsonResponse({
-                'success': True,
-                'message': 'Producto creado exitosamente.',
-                'html': html 
-            })
-        else:
-            errors = form.errors.as_json()
-            return JsonResponse({'success': False, 'errors': errors})
-    return JsonResponse({'success': False, 'error': 'Método no permitido.'})
+            products = Product.objects.filter(user=request.user).order_by('-id')
+            html = render_to_string("products/my_products_list.html", {"products": products}, request=request)
+
+            return JsonResponse({"success": True, "products_html": html})
+        except Exception as e:
+            import traceback
+            print("Error en create_product_ajax:", str(e))
+            print(traceback.format_exc())
+            return JsonResponse({"success": False, "error": f"Error interno: {str(e)}"})
+    return JsonResponse({"success": False, "error": "Solicitud inválida."})
 
 #Edit product
 @login_required
@@ -117,7 +132,6 @@ def edit_product_ajax(request, pk):
 
             return JsonResponse({
                 'success': True,
-                'message': 'Producto actualizado exitosamente.',
                 'html': html
             })
         else:
@@ -134,19 +148,6 @@ def delete_product(request, pk):
         product.delete()
         return redirect('products:my_products')
     return redirect('products:my_products')
-
-
-
-def list_products(request):
-    products = Product.objects.all()
-    cart_item_count = 0
-    if request.user.is_authenticated:
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        cart_item_count = cart.items.count()
-    return render(request, 'products/list.html', {
-        'products': products,
-        'cart_item_count': cart_item_count
-    })
 
 #scraping
 def compare_products(request):
@@ -172,6 +173,27 @@ def add_to_cart(request, product_id):
         cart_item.save()
     return redirect('products:home')
 
+@require_http_methods(["POST"])
+@login_required
+def add_to_cart_ajax(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return JsonResponse({"error": "Producto no encontrado"}, status=404)
+
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+
+    if not created:
+        item.quantity += 1
+        item.save()
+
+    return JsonResponse({
+        "success": True,
+        "message": f"{product.name} agregado al carrito",
+        "cart_count": cart.items.count()
+    })
+
 #Borrar del carrito
 @login_required
 def remove_from_cart(request, item_id):
@@ -188,10 +210,12 @@ def view_cart(request):
     return render(request, 'products/cart.html', {'items': items, 'total': total})
 
 #Numerito del carrito
-@login_required
 def cart_count(request):
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    count = cart.items.count()
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        count = cart.items.count()
+    else:
+        count = 0
     return JsonResponse({'count': count})
 
 #modal items del carrito
@@ -225,29 +249,25 @@ def update_cart_item_quantity(request, item_id):
 
         new_quantity = cart_item.quantity + quantity_change
 
-        #que no exceda el stock
         if new_quantity > product.stock:
             return JsonResponse({
                 'success': False,
                 'error': f'No hay suficiente stock. Solo hay {product.stock} unidades disponibles'
             }, status=400)
 
-        #que sea mayor a 0
         if new_quantity > 0:
             cart_item.quantity = new_quantity
             cart_item.save()
+            final_quantity = cart_item.quantity
         else:
-            # Si la cantidad es 0 o menor, elimina el ítem del carrito 
             cart_item.delete()
+            final_quantity = 0
+            
 
         cart, created = Cart.objects.get_or_create(user=request.user)
         new_total = sum(item.get_total_price() for item in cart.items.all())
         new_count = sum(item.quantity for item in cart.items.all())
-        final_quantity = cart_item.quantity if cart_item.pk else 0
-
-        if not cart_item.pk:
-            final_quantity = 0
-
+        
         return JsonResponse({
             'success': True,
             'new_count': new_count,
@@ -287,7 +307,6 @@ def create_preference(request):
             # Preparar los prodcuts
             items = []
             for cart_item in cart_items:
-                #que el precio sea un número válido
                 try:
                     unit_price = float(cart_item.product.price)
                 except (ValueError, TypeError):
@@ -312,12 +331,12 @@ def create_preference(request):
                 "binary_mode": True,
             }
 
-            print("Creando preferencia con datos:", preference_data) # Log de depuración
+            print("Creando preferencia con datos:", preference_data)
 
             preference_response = sdk.preference().create(preference_data)
             preference = preference_response["response"]
 
-            print("Preferencia creada:", preference) # Log de depuración
+            print("Preferencia creada:", preference)
 
             # Devolver la URL de inicio del checkout
             return JsonResponse({
@@ -337,7 +356,7 @@ def payment_success(request):
     if request.user.is_authenticated:
         try:
             cart = Cart.objects.get(user=request.user)
-            cart.items.all().delete()# cart.delete()
+            cart.items.all().delete()
         except Cart.DoesNotExist:
             pass
     return HttpResponse("""
@@ -362,3 +381,50 @@ def payment_pending(request):
             window.location.href = '/'; // Redirige al home
         </script>
     """)
+
+
+def search_products(request):
+    q = request.GET.get('q', '').strip()
+    if q == "":
+        return JsonResponse({'html': ''})
+    products = Product.objects.filter(name__icontains=q)[:10]
+    html = render_to_string('products/search_products.html', {
+        'products': products
+        }, request=request)
+    return JsonResponse({'html': html})
+
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    products = Product.objects.exclude(id=product.id)[:8]
+
+    return render(request, 'products/detail.html', {
+        'product': product,
+        'products': products
+    })
+
+def product_list(request):
+    products = Product.objects.all()
+    nombre = request.GET.get('nombre', '').strip()
+    if nombre:
+        products = products.filter(name__icontains=nombre)
+    orden = request.GET.get('orden')
+    if orden == "asc":
+        products = products.order_by("price")
+    elif orden == "desc":
+        products = products.order_by("-price")
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    cart_item_count = 0
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_item_count = cart.items.count()
+    context = {
+        "products": page_obj,
+        "page_obj": page_obj,
+        "cart_item_count": cart_item_count
+    }
+
+    return render(request, "products/list.html", context)

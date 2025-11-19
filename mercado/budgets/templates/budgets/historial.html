@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Actividad{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card text-center no-hover">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="compras-tab" data-bs-toggle="tab" data-bs-target="#compras" type="button" role="tab" aria-controls="compras" aria-selected="true">Compras</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="ventas-tab" data-bs-toggle="tab" data-bs-target="#ventas" type="button" role="tab" aria-controls="ventas" aria-selected="false">Ventas</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="presupuestos-tab" data-bs-toggle="tab" data-bs-target="#presupuestos" type="button" role="tab" aria-controls="presupuestos" aria-selected="false">Presupuestos</button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="myTabContent">
+                <!-- Pestaña Compras -->
+                <div class="tab-pane fade show active" id="compras" role="tabpanel" aria-labelledby="compras-tab">
+                    {% if page_obj_c %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Producto</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for orden in page_obj_c %}
+                                <tr>
+                                    <td>{{ orden.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ orden.product.name }}</td>
+                                    <td>${{ orden.total }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <!-- Paginacion -->
+                        <nav>
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj_c.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?page_c=1">Primera</a></li>
+                                    <li class="page-item"><a class="page-link" href="?page_c={{ page_obj_c.previous_page_number }}">Anterior</a></li>
+                                {% endif %}
+                                <li class="page-item disabled"><span class="page-link">Página {{ page_obj_c.number }} de {{ page_obj_c.paginator.num_pages }}</span></li>
+                                {% if page_obj_c.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?page_c={{ page_obj_c.next_page_number }}">Siguiente</a></li>
+                                    <li class="page-item"><a class="page-link" href="?page_c={{ page_obj_c.paginator.num_pages }}">Última</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% else %}
+                        <h5>No tenes compras registradas</h5>
+                        <p>Para comprar un Michi mira los publicados!</p>
+                        <a href="{% url 'products:list' %}" class="btn btn-primary">Comprar Michi</a>
+                    {% endif %}
+                </div>
+                <!-- Pestaña Ventas -->
+                <div class="tab-pane fade" id="ventas" role="tabpanel" aria-labelledby="ventas-tab">
+                    {% if page_obj_v %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Producto Vendido</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for orden in page_obj_v %}
+                                <tr>
+                                    <td>{{ orden.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ orden.product.name }}</td>
+                                    <td>${{ orden.total }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <!-- Paginacion -->
+                        <nav>
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj_v.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?page_v=1">Primera</a></li>
+                                    <li class="page-item"><a class="page-link" href="?page_v={{ page_obj_v.previous_page_number }}">Anterior</a></li>
+                                {% endif %}
+                                <li class="page-item disabled"><span class="page-link">Página {{ page_obj_v.number }} de {{ page_obj_v.paginator.num_pages }}</span></li>
+                                {% if page_obj_v.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?page_v={{ page_obj_v.next_page_number }}">Siguiente</a></li>
+                                    <li class="page-item"><a class="page-link" href="?page_v={{ page_obj_v.paginator.num_pages }}">Última</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% else %}
+                        <h5>No tenes ventas registradas</h5>
+                        <p>Para vender un Michi primero publica uno!</p>
+                        <a href="{% url 'products:my_products' %}" class="btn btn-primary">Agregar Michi</a>
+                    {% endif %}
+                </div>
+                <!-- Pestaña Presupuestos -->
+                <div class="tab-pane fade" id="presupuestos" role="tabpanel" aria-labelledby="presupuestos-tab">
+                    {% if page_obj_p %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for presupuesto in page_obj_p %}
+                                <tr>
+                                    <td>{{ presupuesto.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>${{ presupuesto.total }}</td>
+                                    <td>
+                                        <a href="{% url 'budgets:descargar_presupuesto' presupuesto.id %}" class="btn btn-sm btn-outline-primary">Descargar PDF</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <!-- Paginación -->
+                        <nav>
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj_p.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?page_p=1">Primera</a></li>
+                                    <li class="page-item"><a class="page-link" href="?page_p={{ page_obj_p.previous_page_number }}">Anterior</a></li>
+                                {% endif %}
+                                <li class="page-item disabled"><span class="page-link">Página {{ page_obj_p.number }} de {{ page_obj_p.paginator.num_pages }}</span></li>
+                                {% if page_obj_p.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?page_p={{ page_obj_p.next_page_number }}">Siguiente</a></li>
+                                    <li class="page-item"><a class="page-link" href="?page_p={{ page_obj_p.paginator.num_pages }}">Última</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% else %}
+                        <h5>No tienes presupuestos generados.</h5>
+                        <p>Proba comprando un Michi!</p>
+                        <a href="{% url 'products:list' %}" class="btn btn-primary">Comprar Michi</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

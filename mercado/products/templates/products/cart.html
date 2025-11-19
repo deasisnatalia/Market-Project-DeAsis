@@ -5,11 +5,13 @@
 {% block content %}
     <h2>Tu Carrito</h2>
 
-    <!-- Envuelve el contenido dinámico en un div con id -->
     <div id="cart-items-content">
         {% if items %}
             {% for item in items %}
-                <div class="d-flex align-items-start mb-3 border-bottom pb-3" data-item-id="{{ item.id }}" data-product-stock="{{ item.product.stock }}">
+                <div class="d-flex align-items-start mb-3 border-bottom pb-3" 
+                    data-item-id="{{ item.id }}" 
+                    data-product-stock="{{ item.product.stock }}"
+                    data-product-price="{{ item.product.price }}">
                     <!-- Imagen del producto -->
                     <div class="me-3">
                         {% if item.product.image %}
@@ -33,7 +35,7 @@
                                 <button class="btn btn-outline-secondary btn-sm ms-2 update-quantity-btn" data-change="1">+</button>
                             </div>
                             <div class="d-flex align-items-center">
-                                <span class="me-3">${{ item.get_total_price|floatformat:2 }}</span>
+                                <span class="me-3 item-total-price">${{ item.get_total_price|floatformat:2 }}</span>
                                 <button class="btn btn-link p-0 text-danger remove-item-btn">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -45,9 +47,9 @@
             {% endfor %}
 
             <!-- Subtotal -->
-            <div class="d-flex justify-content-between mt-3 pt-3 border-top">
+            <div id="cart-subtotal-container" class="d-flex justify-content-between mt-3 pt-3 border-top">
                 <strong>Subtotal</strong>
-                <strong>${{ total|floatformat:2 }}</strong>
+                <strong id="cart-subtotal-amount">${{ total|floatformat:2 }}</strong>
             </div>
         {% else %}
             <p>Tu carrito está vacío.</p>
@@ -55,3 +57,4 @@
     </div>
 
 {% endblock %}
+

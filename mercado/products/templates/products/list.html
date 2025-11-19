@@ -1,78 +1,170 @@
 {% extends 'base.html' %}
-
-{% block title %}Lista de Productos{% endblock %}
-
 {% block content %}
-    <h2>Productos</h2>
+<div class="container mt-4">
 
+    <h2 class="mb-4">Michi Productos</h2>
+
+    <!-- Filtros -->
+    <form method="GET" class="row g-3 mb-4">
+        <!-- Buscar por nombre -->
+        <div class="col-md-4">
+            <input type="text" name="nombre" class="form-control" placeholder="Buscar por nombre..."
+                   value="{{ request.GET.nombre }}">
+        </div>
+        <!-- Orden por precio -->
+        <div class="col-md-2">
+            <select name="orden" class="form-select">
+                <option value="">Ordenar por precio...</option>
+                <option value="asc" {% if request.GET.orden == "asc" %}selected{% endif %}>Menor a mayor</option>
+                <option value="desc" {% if request.GET.orden == "desc" %}selected{% endif %}>Mayor a menor</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Aplicar</button>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'products:list' %}" class="btn btn-secondary w-100">
+                Limpiar
+            </a>
+        </div>
+    </form>
+    <input type="hidden" id="csrf_token" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <!-- Cards de productos -->
     <div class="row">
         {% for product in products %}
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                    {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <span class="text-muted">Sin imagen</span>
-                        </div>
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.description|truncatewords:15 }}</p>
-                        <p class="card-text"><strong>${{ product.price }}</strong></p>
-                        <p class="text-muted">Por: {{ product.user.username }}</p>
-
-                        {% if user.is.authenticated %}
-                            <button class="btn btn-sm btn-outline-primary add-to-cart-btn" data-product-id="{{ product.id }}">
+        <div class="col-md-6 mb-4">
+            <div class="card mb-3 shadow-sm" style="max-width: 540px;">
+                <div class="row g-0">
+                    <!-- Imagen -->
+                    <div class="col-md-4">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="{{ product.name }}">
+                        {% else %}
+                        <img src="https://via.placeholder.com/200" class="img-fluid rounded-start" alt="Sin imagen">
+                        {% endif %}
+                    </div>
+                    <!-- Info -->
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description|truncatewords:10 }}</p>
+                            <p class="card-text"><strong>${{ product.price }}</strong></p>
+                            {% if user.is_authenticated %}
+                            <button class="btn btn-success btn-sm mt-2 add-to-cart-btn" 
+                                data-product-id="{{ product.id }}">
                                 Agregar al carrito
                             </button>
-                        {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
+
+        </div>
         {% empty %}
-            <p>No hay productos aún.</p>
+        <p>No se encontraron productos.</p>
         {% endfor %}
     </div>
+    <!-- PAGINACION -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-4">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if request.GET.nombre %}nombre={{ request.GET.nombre }}&{% endif %}
+                {% if request.GET.precio_min %}precio_min={{ request.GET.precio_min }}&{% endif %}
+                {% if request.GET.precio_max %}precio_max={{ request.GET.precio_max }}&{% endif %}
+                {% if request.GET.orden %}orden={{ request.GET.orden }}&{% endif %}
+                page=1">
+                    Primera
+                </a>
+            </li>
+            {% endif %}
 
-    {% if user.is_authenticated %}
-        <a href="{% url 'products:create' %}" class="btn btn-primary">Crear Producto</a>
-    {% else %}
-        <a href="{% url 'users:login' %}" class="btn btn-primary">Logueate para crear productos</a>
-    {% endif %}
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if request.GET.nombre %}nombre={{ request.GET.nombre }}&{% endif %}
+                {% if request.GET.precio_min %}precio_min={{ request.GET.precio_min }}&{% endif %}
+                {% if request.GET.precio_max %}precio_max={{ request.GET.precio_max }}&{% endif %}
+                {% if request.GET.orden %}orden={{ request.GET.orden }}&{% endif %}
+                page={{ page_obj.previous_page_number }}">
+                    « Anterior
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if request.GET.nombre %}nombre={{ request.GET.nombre }}&{% endif %}
+                {% if request.GET.precio_min %}precio_min={{ request.GET.precio_min }}&{% endif %}
+                {% if request.GET.precio_max %}precio_max={{ request.GET.precio_max }}&{% endif %}
+                {% if request.GET.orden %}orden={{ request.GET.orden }}&{% endif %}
+                page={{ page_obj.next_page_number }}">
+                    Siguiente »
+                </a>
+            </li>
+            {% endif %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if request.GET.nombre %}nombre={{ request.GET.nombre }}&{% endif %}
+                {% if request.GET.precio_min %}precio_min={{ request.GET.precio_min }}&{% endif %}
+                {% if request.GET.precio_max %}precio_max={{ request.GET.precio_max }}&{% endif %}
+                {% if request.GET.orden %}orden={{ request.GET.orden }}&{% endif %}
+                page={{ page_obj.paginator.num_pages }}">
+                    Última
+                </a>
+            </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+</div>
 {% endblock %}
-
 {% block extra_js %}
+    {{ block.super }}
     <script>
-        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.getAttribute('data-product-id');
-                fetch(`/products/add-to-cart/${productId}/`, {
-                    method: 'POST',
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const productId = this.dataset.productId;
+                const url = window.MyApp.urls.addToCartAjax.replace("0", productId);
+
+                fetch(url, {
+                    method: "POST",
                     headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        'Content-Type': 'application/json',
-                    },
+                        "X-CSRFToken": document.getElementById('csrf-token').value,
+                    }
                 })
-                .then(response => response.json())
+                .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        const badge = document.querySelector('.badge');
+                        const badge = document.getElementById("cart-count");
                         if (badge) {
                             badge.textContent = data.cart_count;
-                        } else {
-                            const cartLink = document.querySelector('a[href="/products/cart/"]');
-                            cartLink.innerHTML += `
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    ${data.cart_count}
-                                    <span class="visually-hidden">unread messages</span>
-                                </span>
-                            `;
                         }
-                        alert('Producto agregado al carrito');
+
+                        const toast = document.createElement("div");
+                        toast.className = "alert alert-success position-fixed top-0 end-0 m-3 shadow";
+                        toast.style.zIndex = "9999";
+                        toast.textContent = data.message;
+
+                        document.body.appendChild(toast);
+
+                        setTimeout(() => toast.remove(), 2500);
                     }
+                })
+                .catch(err => {
+                    console.error("Error agregando producto:", err);
                 });
             });
         });
+    });
     </script>
 {% endblock %}

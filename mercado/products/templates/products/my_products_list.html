@@ -26,13 +26,13 @@
                         <td>${{ product.price }}</td>
                         <td>{{ product.stock }}</td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-warning me-1 open-edit-modal"
-                                    data-pk="{{ product.pk }}"
+                            <button type="button" class="btn btn-sm btn-outline-primary open-edit-modal"
+                                    data-pk="{{ product.id }}"
                                     data-name="{{ product.name }}"
                                     data-price="{{ product.price }}"
-                                    data-description="{{ product.description|escape }}"
+                                    data-description="{{ product.description }}"
                                     data-stock="{{ product.stock }}"
-                                    data-image="{% if product.image %}{{ product.image.url|escape }}{% endif %}">
+                                    data-image="{{ product.image.url|default:'' }}">
                                 Editar
                             </button>
                             <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.pk }}">
@@ -47,8 +47,6 @@
 {% else %}
     <p>No tienes productos aún.</p>
 {% endif %}
-
-<!-- Incluimos los modales de eliminación aquí también, porque se recargará este fragmento -->
 {% for product in products %}
     <div class="modal fade" id="deleteModal{{ product.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ product.pk }}" aria-hidden="true">
       <div class="modal-dialog">

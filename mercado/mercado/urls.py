@@ -9,6 +9,8 @@ urlpatterns = [
     path('products/', include('products.urls')),
     path('users/', include('users.urls')),
     path('accounts/', include('allauth.urls')),
+    path('budgets/', include('budgets.urls')),
+    path('chat/', include('chat.urls')),
     path('', RedirectView.as_view(url='/products/', permanent=True)),
 
     #APIs REST

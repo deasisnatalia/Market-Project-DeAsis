@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Inicio - Michi Mercado{% endblock %}
 
 {% block content %}
     <div class="jumbotron bg-primary text-white p-5 rounded">
         <h1 class="display-4">Bienvenido al mercado de Michis</h1>
-        <p class="lead">Busca, compra y vende los michis que quieras!!</p>
+        <p class="lead">Compra y venda los michis que quiera!!</p>
     </div>
 
-    <h2 class="mt-5">Los ultimos Productos</h2>
+    <h2 class="mt-5">Los ultimos Michis a la venta</h2>
     <div class="row">
         {% for product in products %}
             <div class="col-md-4 mb-3">
