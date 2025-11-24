@@ -64,55 +64,58 @@
         {% endfor %}
     </div>
 </div>
-{% if user.is_authenticated %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const buttons = document.querySelectorAll('.add-to-cart-btn');
+{% endblock %}
+{% block extra_js %}
+    {{ block.super }}
+    {% if user.is_authenticated %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.add-to-cart-btn');
 
-        buttons.forEach(btn => {
-            const cartMessage = btn.parentElement.querySelector('#cart-message') || null;
-            btn.addEventListener('click', function() {
-                const productId = this.dataset.productId;
-                const originalText = this.textContent;
-                this.disabled = true;
-                this.textContent = 'Agregando...';
+            buttons.forEach(btn => {
+                const cartMessage = btn.parentElement.querySelector('#cart-message') || null;
+                btn.addEventListener('click', function() {
+                    const productId = this.dataset.productId;
+                    const originalText = this.textContent;
+                    this.disabled = true;
+                    this.textContent = 'Agregando...';
 
-                fetch("{% url 'products:add_to_cart_ajax' 0 %}".replace('0', productId), {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        const cartCountElem = document.querySelector('#cart-count');
-                        if(cartCountElem) cartCountElem.textContent = data.cart_count;
+                    fetch("{% url 'products:add_to_cart_ajax' 0 %}".replace('0', productId), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            const cartCountElem = document.querySelector('#cart-count');
+                            if(cartCountElem) cartCountElem.textContent = data.cart_count;
 
-                        btn.textContent = 'Agregado ✔️';
-                        if(cartMessage) cartMessage.textContent = 'Producto agregado al carrito';
+                            btn.textContent = 'Agregado ✔️';
+                            if(cartMessage) cartMessage.textContent = 'Producto agregado al carrito';
 
-                        setTimeout(() => {
+                            setTimeout(() => {
+                                btn.disabled = false;
+                                btn.textContent = originalText;
+                                if(cartMessage) cartMessage.textContent = '';
+                            }, 1500);
+                        } else {
                             btn.disabled = false;
                             btn.textContent = originalText;
-                            if(cartMessage) cartMessage.textContent = '';
-                        }, 1500);
-                    } else {
+                            alert(data.error || 'Error al agregar el producto.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
                         btn.disabled = false;
                         btn.textContent = originalText;
-                        alert(data.error || 'Error al agregar el producto.');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    btn.disabled = false;
-                    btn.textContent = originalText;
-                    alert('Error al agregar el producto.');
+                        alert('Error al agregar el producto.');
+                    });
                 });
             });
         });
-    });
-</script>
-{% endif %}
+    </script>
+    {% endif %}
 {% endblock %}

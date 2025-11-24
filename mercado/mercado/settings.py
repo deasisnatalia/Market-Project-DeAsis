@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-@lvc2tlfb$(-ku24=)+g9-t0ps6%%#4o&2a!w1$9l-m&p@pl5#
 
 PORT = int(os.environ.get('PORT', 8000))
 
-DEBUG = False
+DEBUG = True
 
 SITE_ID = 1
 
@@ -134,7 +134,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # Configuracion de archivos multimedia
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 

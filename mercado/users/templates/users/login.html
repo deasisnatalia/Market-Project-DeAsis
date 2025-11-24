@@ -1,5 +1,6 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -18,10 +19,32 @@
         .social-login .btn {
             flex: 1;
         }
+        :root {
+            --bg-image-url: url('/static/images/cat_paw_background_light.svg');
+        }
+
+        html[data-bs-theme="dark"] {
+            --bg-image-url: url('/static/images/cat_paw_background_dark.svg');
+        }
+        body {
+            color: var(--bs-body-color);
+            background-color: var(--bs-body-bg);
+            background-image: var(--bg-image-url);
+            background-size: 200px 200px;
+            background-repeat: repeat;
+            background-position: center center;
+            background-attachment: scroll;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
     </style>
 </head>
 
 <body class="d-flex align-items-center py-4 bg-body-tertiary">
+    <div style="position: fixed; top: 20px; right: 1px; z-index: 1000; width: 60px; height: 60px; font-size: 20px;">
+        <button id="theme-toggle" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
+    </div>
     <main class="form-signin w-100 m-auto" style="max-width: 400px;">
         <div class="card shadow-lg">
             <div class="card-body p-4">
@@ -66,6 +89,8 @@
             </div>
         </div>
     </main>
+    {% block extra_js %}
+        <script src="{% static 'js/theme.js' %}"></script>
+    {% endblock %}
 </body>
-
 </html>

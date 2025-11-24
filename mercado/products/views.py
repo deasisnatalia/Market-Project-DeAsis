@@ -132,6 +132,7 @@ def edit_product_ajax(request, pk):
 
             return JsonResponse({
                 'success': True,
+                'message': 'Producto actualizado exitosamente.',
                 'html': html
             })
         else:
@@ -176,11 +177,8 @@ def add_to_cart(request, product_id):
 @require_http_methods(["POST"])
 @login_required
 def add_to_cart_ajax(request, product_id):
-    try:
-        product = Product.objects.get(id=product_id)
-    except Product.DoesNotExist:
-        return JsonResponse({"error": "Producto no encontrado"}, status=404)
-
+    product = Product.objects.get(id=product_id)
+    
     cart, created = Cart.objects.get_or_create(user=request.user)
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
 

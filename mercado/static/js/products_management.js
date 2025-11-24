@@ -54,21 +54,17 @@ document.addEventListener('DOMContentLoaded', function () {
     //Eventos de botones de editar al cargar la pagina
     function assignEditEvents() {
         const editButtons = document.querySelectorAll('.open-edit-modal');
-        console.log("Botones encontrados:", editButtons.length);
 
         editButtons.forEach(button => {
-            if (button.parentNode) {
-                button.addEventListener('click', function() {
-                    const productId = this.getAttribute('data-pk');
-                    if (!productId || productId === "undefined") {
-                        console.error("Botón de edición no tiene un 'data-pk' válido:", this);
-                        return;
-                    }
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+
+            newButton.addEventListener('click', function() {
+                const productId = this.getAttribute('data-pk');
+                if (productId && productId !== "undefined") {
                     loadEditModalData(productId);
-                });
-            } else {
-                console.warn("Botón sin parentNode:", button);
-            }
+                }
+            });
         });
     }
 
@@ -175,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: formData,
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             })
             .then(response => response.json())
@@ -182,21 +179,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     const modalElement = document.getElementById('editModal');
                     const modal = bootstrap.Modal.getInstance(modalElement);
-                    if (modal) {
-                        modal.hide();
-                    }
-
-                    console.log("Edicion exitosa, actualizando lista...");
-                    alert(data.message);
-                    document.getElementById('products-list-container').innerHTML = data.html;
-                    location.reload();
+                    if (modal) modal.hide();
                     
-                    document.querySelectorAll('.open-edit-modal').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            const productId = this.getAttribute('data-pk');
-                            loadEditModalData(productId);
-                        });
-                    });
+                    if (data.html) {
+                        document.getElementById('products-list-container').innerHTML = data.html;
+                    }
+                    alert(data.message || 'Producto actualizado correctamente');
+                    
+                    assignEditEvents();
                 } else {
                     errorsDiv.classList.remove('d-none');
                     errorsDiv.innerHTML = '<ul></ul>';
@@ -214,7 +204,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         errorsDiv.innerHTML = '<p>Error al procesar los datos.</p>';
                     }
                 }
-                assignEditEvents();
             })
             .catch(error => {
                 console.error('Error:', error);
