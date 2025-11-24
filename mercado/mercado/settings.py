@@ -1,4 +1,5 @@
 from pathlib import Path
+import dj_database_url
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -86,14 +87,12 @@ WSGI_APPLICATION = 'mercado.wsgi.application'
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'market_project_bd',
-        'USER': 'deasis',
-        'PASSWORD': 'TUTUmanda123',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        # Busca la variable DATABASE_URL de Render.
+        # Si no la encuentra (ej: en tu PC), usa tu configuración local de Postgres:
+        default='postgresql://deasis:TUTUmanda123@localhost:5432/market_project_bd',
+        conn_max_age=600
+    )
 }
 
 
@@ -183,4 +182,4 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 #MercadoPago
-MERCADOPAGO_ACCESS_TOKEN = 'APP_USR-7709248867197169-111103-ce6f78b5db066e8ae5eef780e0a80d97-276257017'
+MERCADOPAGO_ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN')
