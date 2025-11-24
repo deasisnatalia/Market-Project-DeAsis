@@ -20,7 +20,7 @@
 
 *   **Backend:** [Python](https://www.python.org/) 3.x, [Django](https://www.djangoproject.com/)
 *   **Frontend:** [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5), [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS), [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript), [Bootstrap](https://getbootstrap.com/)
-*   **Base de Datos:** SQLite (por defecto en Django, puede cambiar a PostgreSQL para producción)
+*   **Base de Datos:** [PostgreSQL]
 *   **API de Pago:** [Mercado Pago](https://www.mercadopago.com.ar/developers/)
 *   **Herramientas:** `pip`, `venv`
 
@@ -29,8 +29,8 @@
 1.  **Clonar el repositorio:**
 
     ```bash
-    git clone https://github.com/TU_USUARIO/TU_REPOSITORIO.git
-    cd TU_REPOSITORIO
+    git clone https://github.com/deasisnatalia/Market-Project-DeAsis.git
+    cd mercado
     ```
 
 2.  **Crear y activar un entorno virtual:**
@@ -53,7 +53,7 @@
     python manage.py migrate
     ```
 
-5.  **Crear un superusuario (opcional):**
+5.  **Crear un superusuario (opcional) o registrate con Google/GitHub:**
 
     ```bash
     python manage.py createsuperuser
@@ -76,9 +76,5 @@
 
 8.  **Abrir el navegador** en `http://127.0.0.1:8000/`.
 
-## Deployment
-
-La aplicación está lista para ser desplegada en servicios como [Render](https://render.com/). Consulta las notas de deployment en el código o en este README para más detalles sobre configuración de variables de entorno, `whitenoise`, y base de datos.
-
 ## Autor
-Natalia
+Natalia De Asis
