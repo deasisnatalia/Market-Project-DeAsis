@@ -1,0 +1,53 @@
+services:
+  - type: web
+    name: market-project-deasis
+    env: python
+    region: oregon
+    buildCommand: cd mercado && ./build.sh
+    startCommand: cd mercado && gunicorn mercado.wsgi:application
+    preDeployCommand: |
+      cd mercado &&
+      python ./manage.py createsuperuser --noinput || echo "Superuser already exists or error creating it."
+
+    # Variables de entorno
+    envVars:
+      # Variables de Django
+      - key: SECRET_KEY
+        sync: true 
+      - key: DEBUG
+        value: "False"
+
+      # Variables de superusuario
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: true
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: true
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: true
+
+      # Variables de autenticación social
+      - key: SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+        sync: true
+      - key: SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
+        sync: true
+      - key: SOCIAL_AUTH_GITHUB_KEY
+        sync: true
+      - key: SOCIAL_AUTH_GITHUB_SECRET
+        sync: true
+
+      # Variables de Mercado Pago
+      - key: MERCADOPAGO_ACCESS_TOKEN
+        sync: true
+
+      # Variables de Render
+      - key: DATABASE_URL
+        fromDatabase: my-django-db
+        property: connectionString
+      - key: RENDER_EXTERNAL_HOSTNAME
+        syncFromService: market-project-deasis
+        property: hostname
+
+databases:
+  - name: my-django-db
+    region: oregon
+    plan: free
