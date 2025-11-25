@@ -8,7 +8,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-SITE_ID = 1
+# SITE_ID = 1
 
 ALLOWED_HOSTS = [
     'market-project-deasis.onrender.com',
@@ -37,12 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
+    #'django.contrib.sites',
 
     #Terceros
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
+    #'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
     'rest_framework',
