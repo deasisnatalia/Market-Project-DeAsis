@@ -4,15 +4,17 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-@lvc2tlfb$(-ku24=)+g9-t0ps6%%#4o&2a!w1$9l-m&p@pl5#'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-PORT = int(os.environ.get('PORT', 8000))
-
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 SITE_ID = 1
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
