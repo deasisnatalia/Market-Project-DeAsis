@@ -8,7 +8,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-SITE_ID = 1
+SITE_ID = 2
 
 ALLOWED_HOSTS = [
     'market-project-deasis.onrender.com',
