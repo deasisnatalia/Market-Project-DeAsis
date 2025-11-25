@@ -10,7 +10,11 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 SITE_ID = 1
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'market-project-deasis.onrender.com',
+    '127.0.0.1',
+    'localhost',
+]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
@@ -90,8 +94,6 @@ WSGI_APPLICATION = 'mercado.wsgi.application'
 # Database
 DATABASES = {
     'default': dj_database_url.config(
-        # Busca la variable DATABASE_URL de Render.
-        # Si no la encuentra (ej: en tu PC), usa tu configuración local de Postgres:
         default='postgresql://deasis:TUTUmanda123@localhost:5432/market_project_bd',
         conn_max_age=600
     )
@@ -183,9 +185,18 @@ SOCIALACCOUNT_PROVIDERS = {
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+
 SOCIAL_AUTH_GITHUB_KEY = os.environ.get('SOCIAL_AUTH_GITHUB_KEY')
 SOCIAL_AUTH_GITHUB_SECRET = os.environ.get('SOCIAL_AUTH_GITHUB_SECRET')
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
+SOCIALACCOUNT_PROVIDERS['google']['OAUTH_PKCE_ENABLED'] = True
+
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 #MercadoPago
 MERCADOPAGO_ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN')
