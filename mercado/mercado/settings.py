@@ -149,12 +149,6 @@ CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
 CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY')
 CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dpjhhczbd',
-    'API_KEY': '144839573556984',
-    'API_SECRET': '0MLX4IlqTHIELMTK8M2vDQujrvU',
-}
-
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
