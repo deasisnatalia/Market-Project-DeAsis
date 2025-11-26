@@ -1,19 +1,41 @@
-# users/adapters.py
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from allauth.exceptions import ImmediateHttpResponse
 from django.contrib.auth import get_user_model
+from django.contrib import messages
+from django.shortcuts import redirect
 
 User = get_user_model()
 
 class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
+
+    def pre_social_login(self, request, sociallogin):
+        if sociallogin.is_existing:
+            return
+
+        email = sociallogin.account.extra_data.get('email') or sociallogin.user.email
+        if not email:
+            return
+        try:
+            user = User.objects.get(email=email)
+            #mostrar error y redirigir.
+            messages.error(
+                request, 
+                f"Ya existe una cuenta registrada con el correo {email}. "
+                "Por favor, inicia sesión con tu contraseña"
+            )
+            #al login
+            raise ImmediateHttpResponse(redirect('account_login'))
+        except User.DoesNotExist:
+            pass
+
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
         
-        # Si no existe username, generar uno
         if not user.username:
-            base = data.get("name") or data.get("email").split("@")[0]
+            base = data.get("name") or data.get("email", "").split("@")[0]
+            base = str(base)
             username = base.replace(" ", "").lower()
             
-            # evitar duplicados
             original = username
             counter = 1
             while User.objects.filter(username=username).exists():
