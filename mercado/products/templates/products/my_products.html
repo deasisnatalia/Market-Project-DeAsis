@@ -106,7 +106,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn btn-primary">Crear Producto</button>
+              <button type="submit" class="btn btn-primary" onclick="this.disabled=true; this.innerText='Creando...'; this.form.submit();">Crear Producto</button>
             </div>
           </form>
         </div>
@@ -171,4 +171,13 @@
       window.MyApp.urls.editProductPattern = "{% url 'products:edit_product_ajax' 0 %}";
     </script>
     <script src="{% static 'js/products_management.js' %}"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const button = document.getElementById('submit-button');
+        if (button) {
+          button.disabled = false;
+          button.innerText = 'Guardar Producto';
+        }
+      });
+    </script>
 {% endblock %}
