@@ -32,7 +32,13 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
         user = super().populate_user(request, sociallogin, data)
         
         if not user.username:
-            base = data.get("name") or data.get("email", "").split("@")[0]
+            if user.first_name:
+                base = user.first_name
+            elif data.get("name"):
+                base = data.get("name").split()[0]
+            else:
+                base = user.email.split("@")[0]
+            
             base = str(base)
             username = base.replace(" ", "").lower()
             
