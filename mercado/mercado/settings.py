@@ -244,3 +244,11 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 #MercadoPago
 MERCADOPAGO_ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN')
+
+# settings.py (al final)
+print("=== Cloudinary Config ===")
+print(f"CLOUDINARY_CLOUD_NAME: {CLOUDINARY_CLOUD_NAME}")
+print(f"CLOUDINARY_API_KEY: {CLOUDINARY_API_KEY}")
+print(f"CLOUDINARY_API_SECRET: {'***' if CLOUDINARY_API_SECRET else 'None'}")
+print(f"DEFAULT_FILE_STORAGE: {DEFAULT_FILE_STORAGE}")
+print("=========================")
