@@ -32,7 +32,7 @@
                                     data-price="{{ product.price }}"
                                     data-description="{{ product.description }}"
                                     data-stock="{{ product.stock }}"
-                                    data-image="{{ product.image.url|default:'' }}">
+                                    data-image="{{ product.image.url if product.image else '' }}">
                                 Editar
                             </button>
                             <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.pk }}">
