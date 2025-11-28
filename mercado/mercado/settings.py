@@ -152,6 +152,12 @@ if not os.getenv('DEBUG', 'True') == 'True':
     if not CLOUDINARY_CLOUD_NAME or not CLOUDINARY_API_KEY or not CLOUDINARY_API_SECRET:
         raise ValueError("CRITICAL ERROR: Una o más claves de Cloudinary (CLOUD_NAME, API_KEY, API_SECRET) están faltando en las variables de entorno de Render.")
 
+#inicia la configuracion global de cloudinary
+cloudinary.config(
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
+)
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/'
