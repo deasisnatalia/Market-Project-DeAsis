@@ -1,8 +1,11 @@
 from pathlib import Path
 import dj_database_url
 import cloudinary
+from dotenv import load_dotenv
 import os
 
+load_dotenv()
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -95,9 +98,10 @@ WSGI_APPLICATION = 'mercado.wsgi.application'
 
 
 # Database
+DATABASE_URL = os.getenv('DATABASE_URL')
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://deasis:TUTUmanda123@localhost:5432/market_project_bd',
+        default=DATABASE_URL,
         conn_max_age=600
     )
 }
@@ -140,15 +144,15 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # Configuracion de archivos multimedia
-MEDIA_URL = '/media/'
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+#MEDIA_URL = '/media/'
 
 # Configuración de Cloudinary
-CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
-CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY')
-CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
-
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -238,11 +242,3 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 #MercadoPago
 MERCADOPAGO_ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN')
-
-# settings.py (al final)
-print("=== Cloudinary Config ===")
-print(f"CLOUDINARY_CLOUD_NAME: {CLOUDINARY_CLOUD_NAME}")
-print(f"CLOUDINARY_API_KEY: {CLOUDINARY_API_KEY}")
-print(f"CLOUDINARY_API_SECRET: {'***' if CLOUDINARY_API_SECRET else 'None'}")
-print(f"DEFAULT_FILE_STORAGE: {DEFAULT_FILE_STORAGE}")
-print("=========================")

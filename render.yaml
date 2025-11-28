@@ -13,7 +13,7 @@ services:
     envVars:
       # Variables de Django
       - key: SECRET_KEY
-        sync: true 
+        sync: false 
       - key: DEBUG
         value: "False"
 
@@ -46,6 +46,13 @@ services:
       - key: RENDER_EXTERNAL_HOSTNAME
         syncFromService: market-project-deasis
         property: hostname
+
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: False
+      - key: CLOUDINARY_API_KEY
+        sync: False
+      - key: CLOUDINARY_API_SECRET
+        sync: False
 
 databases:
   - name: my-django-db
