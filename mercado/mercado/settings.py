@@ -1,6 +1,8 @@
 from pathlib import Path
 import dj_database_url
 import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 from dotenv import load_dotenv
 import os
 
@@ -148,10 +150,6 @@ CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
 CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
 CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
 
-if not os.getenv('DEBUG', 'True') == 'True':
-    if not CLOUDINARY_CLOUD_NAME or not CLOUDINARY_API_KEY or not CLOUDINARY_API_SECRET:
-        raise ValueError("CRITICAL ERROR: Una o más claves de Cloudinary (CLOUD_NAME, API_KEY, API_SECRET) están faltando en las variables de entorno de Render.")
-
 #inicia la configuracion global de cloudinary
 cloudinary.config(
     cloud_name=CLOUDINARY_CLOUD_NAME,
@@ -160,7 +158,7 @@ cloudinary.config(
 )
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-MEDIA_URL = '/media/'
+MEDIA_URL = 'https://res.cloudinary.com/{}/'.format(CLOUDINARY_CLOUD_NAME)
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CLOUDINARY_STORAGE = {
