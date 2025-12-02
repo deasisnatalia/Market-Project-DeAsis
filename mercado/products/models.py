@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from cloudinary.models import CloudinaryField
 
 User = get_user_model()
 
@@ -11,7 +12,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
+    image = CloudinaryField('image')
     stock = models.PositiveBigIntegerField(default=0)
 
     def __str__(self):
