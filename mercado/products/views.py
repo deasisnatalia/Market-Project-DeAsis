@@ -65,7 +65,10 @@ def create_product_ajax(request):
             price = request.POST.get("price")
             description = request.POST.get("description")
             stock = request.POST.get("stock")
+            print("POST:", request.POST)
+            print("FILES:", request.FILES)     
             image = request.FILES.get("image")
+            print("IMAGE OBJ:", image)  
 
             if not name or not price:
                 return JsonResponse({"success": False, "error": "Nombre y precio son obligatorios."})
@@ -87,6 +90,9 @@ def create_product_ajax(request):
                 stock=stock,
                 image=image
             )
+            print("PRODUCT IMAGE FIELD:", product.image)
+            if product.image:
+                print("PRODUCT IMAGE URL:", product.image.url)
 
             products = Product.objects.filter(user=request.user).order_by('-id')
             html = render_to_string("products/my_products_list.html", {"products": products}, request=request)
