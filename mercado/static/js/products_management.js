@@ -1,10 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
-
-    //Funcion para cargar datos del producto en el modal de editar
+    //Funcion para cargar los datos en el modal de editar
     function loadEditModalData(productId) {
-        console.log("Cargando datos para editar producto ID:", productId);
         const editButton = document.querySelector(`button[data-pk="${productId}"]`);
-        console.log("Boton encontrado:", editButton);
+        
         if (!productId) {
             console.error("ID de producto no definido para edicion");
             return;
@@ -13,16 +11,12 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error("ID de producto inválido:", productId);
             return;
         }
-
-        console.log("Cargando datos para editar producto ID:", productId);
         if (editButton) {
             const name = editButton.getAttribute('data-name');
             const price = editButton.getAttribute('data-price');
             const description = editButton.getAttribute('data-description');
             const stock = editButton.getAttribute('data-stock');
             const image = editButton.getAttribute('data-image');
-
-            console.log("Datos obtenidos:", {name, price, description, stock, image});
             
             document.getElementById('edit_name').value = name;
             document.getElementById('edit_price').value = parseFloat(price).toFixed(2);
@@ -51,38 +45,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    //Eventos de botones de editar al cargar la pagina
-    function assignEditEvents() {
-        const editButtons = document.querySelectorAll('.open-edit-modal');
-
-        editButtons.forEach(button => {
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
-
-            newButton.addEventListener('click', function() {
-                const productId = this.getAttribute('data-pk');
-                if (productId && productId !== "undefined") {
-                    loadEditModalData(productId);
-                }
-            });
-        });
-    }
-
-    // Asigna eventos iniciales
-    assignEditEvents();
-
-    // formulario de crear
+    //formulario de crear producto
     const createForm = document.getElementById('create-product-form');
     if (createForm) { 
-        console.log("Formulario de creacion encontrado");
         createForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            console.log("Formulario de creacion interceptado"); 
+            
             const url = window.MyApp.urls.createProduct;
             const formData = new FormData(this);
             const errorsDiv = document.getElementById('create-form-errors');
 
-            //Valida y formatear el precio
+            //Validaciones del precio
             const priceInput = document.getElementById('id_price');
             let priceValue = priceInput.value.trim();
             if (priceValue === '') {
@@ -90,44 +63,38 @@ document.addEventListener('DOMContentLoaded', function () {
                 errorsDiv.innerHTML = '<p>El precio no puede estar vacío.</p>';
                 return;
             }
-
             //reemplaza coma por punto
             priceValue = priceValue.replace(',', '.');
-            
             const priceNum = parseFloat(priceValue);
             if (isNaN(priceNum) || priceNum < 0) {
                 errorsDiv.classList.remove('d-none');
                 errorsDiv.innerHTML = '<p>El precio debe ser un número positivo.</p>';
                 return;
             }
-
             //formatea el precio a 2 decimales y reemplaza en el formData
             formData.set('price', priceNum.toFixed(2));
-            console.log("URL de creación:", window.MyApp.urls.createProduct);
-            if (!window.MyApp.urls.createProduct) {
-                console.error("La URL de creación no está definida.");
-                return;
-            }
+
             fetch(window.MyApp.urls.createProduct, {
                 method: 'POST',
                 body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                 },
             })
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    console.log("Creacion eitosa, actualizando lista...");
-                    assignEditEvents();
-
+                    if (data.html) {
+                        document.getElementById('products-list-container').innerHTML = data.html;
+                    }
                     const modal = bootstrap.Modal.getInstance(document.getElementById("createModal"));
                     modal.hide();
                     createForm.reset();
                 } else {
                     const errorDiv = document.getElementById("create-form-errors");
                     errorDiv.classList.remove("d-none");
-                    errorDiv.innerHTML = data.error;
+                    errorDiv.innerHTML = data.error || "Error al crear el producto.";
                 }
             })
             .catch(error => {
@@ -136,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    //Formulario de edicion
+    //Formulario de editar producto
     const editForm = document.getElementById('edit-product-form');
     if (editForm) {
         console.log("Formulario de edicion encontrado");
@@ -186,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     alert(data.message || 'Producto actualizado correctamente');
                     
-                    assignEditEvents();
                 } else {
                     errorsDiv.classList.remove('d-none');
                     errorsDiv.innerHTML = '<ul></ul>';
@@ -213,4 +179,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    document.addEventListener('click', function (e) {
+        const button = e.target.closest('open-edit-modal');
+        if (button) {
+            const productId = e.target.getAttribute('data-pk');
+            if (productId) {
+                loadEditModalData(productId);
+            }
+        }
+    });
 });
