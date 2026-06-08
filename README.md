@@ -1,80 +1,179 @@
-# Michi Mercado
+# Efra Cerraduras
 
-**Michi Mercado** es una aplicación web desarrollada en **Django** que simula una plataforma de comercio electrónico. Permite a los usuarios navegar productos, gestionar un carrito de compras con funcionalidades de agregar, quitar y ajustar cantidades según el stock disponible, y realizar pagos a través de **Mercado Pago**. Además, incluye un CRUD completo para que los usuarios gestionen sus propios productos.
+Efra Cerraduras es una aplicación web desarrollada con Django que permite la gestión integral de productos, clientes, pedidos y presupuestos dentro de una plataforma comercial.
 
-## Características
+El sistema incorpora funcionalidades de comercio electrónico, administración de usuarios, generación de presupuestos en PDF, gestión de pedidos y comunicación en tiempo real mediante WebSockets.
 
-*   **Autenticación de Usuarios:** Registro e inicio de sesión.
-*   **Gestión de Productos:** CRUD (Crear, Leer, Actualizar, Eliminar) de productos por parte del usuario logueado.
-*   **Catálogo de Productos:** Visualización de productos disponibles.
-*   **Carrito de Compras Dinámico:**
-    *   Agregar, quitar y ajustar cantidades de productos.
-    *   Validación de stock disponible.
-    *   Modal interno para visualizar y gestionar el carrito.
-    *   Contador de ítems en el navbar (solo para usuarios logueados).
-*   **Integración con Mercado Pago:** Procesamiento seguro de pagos.
-*   **Interfaz de Usuario Responsiva:** Utiliza **Bootstrap** para una experiencia adaptable.
-*   **Paginación:** En la vista de "Mis Productos".
+## Características Principales
+
+### Gestión de Usuarios
+
+* Registro e inicio de sesión.
+* Modelo de usuario personalizado.
+* Gestión de perfiles con imagen y datos adicionales.
+* Control de permisos y roles.
+
+### Gestión de Productos
+
+* Alta, baja, modificación y consulta de productos.
+* Gestión de stock.
+* Carga de imágenes.
+* Administración de categorías.
+
+### Carrito de Compras
+
+* Agregar y eliminar productos.
+* Modificación de cantidades.
+* Validación automática de stock.
+* Cálculo dinámico de subtotales y totales.
+
+### Gestión de Pedidos
+
+* Creación de pedidos a partir del carrito.
+* Seguimiento de estados:
+
+  * Pendiente
+  * En Proceso
+  * Completado
+  * Rechazado
+* Historial de pedidos por cliente.
+
+### Presupuestos
+
+* Generación automática de presupuestos.
+* Exportación en formato PDF mediante ReportLab.
+
+### Panel Administrativo
+
+* Administración de clientes.
+* Administración de productos.
+* Administración de pedidos.
+* Visualización de información comercial.
+
+### API REST
+
+* Endpoints para gestión de productos.
+* Serialización de datos mediante Django REST Framework.
+* Arquitectura preparada para integración con aplicaciones externas.
+
+### Comunicación en Tiempo Real
+
+* Implementación de WebSockets mediante Django Channels.
+* Actualización de información en tiempo real.
 
 ## Tecnologías Utilizadas
 
-*   **Backend:** [Python](https://www.python.org/) 3.x, [Django](https://www.djangoproject.com/)
-*   **Frontend:** [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5), [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS), [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript), [Bootstrap](https://getbootstrap.com/)
-*   **Base de Datos:** [PostgreSQL]
-*   **API de Pago:** [Mercado Pago](https://www.mercadopago.com.ar/developers/)
-*   **Herramientas:** `pip`, `venv`
+### Backend
 
-## Instalación Local (para desarrollo)
+* Python
+* Django
+* Django REST Framework
+* Django Channels
 
-1.  **Clonar el repositorio:**
+### Frontend
 
-    ```bash
-    git clone https://github.com/deasisnatalia/Market-Project-DeAsis.git
-    cd mercado
-    ```
+* HTML5
+* CSS3
+* JavaScript
+* Bootstrap
 
-2.  **Crear y activar un entorno virtual:**
+### Base de Datos
 
-    ```bash
-    python -m venv venv
-    # En Windows:
-    venv\Scripts\activate
-    ```
+* SQLite (desarrollo)
 
-3.  **Instalar dependencias:**
+### Librerías Adicionales
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+* ReportLab
+* Pillow
 
-4.  **Configurar la base de datos:**
+### Herramientas
 
-    ```bash
-    python manage.py migrate
-    ```
+* Git
+* GitHub
+* Virtual Environment (venv)
 
-5.  **Crear un superusuario (opcional) o registrate con Google/GitHub:**
+## Instalación
 
-    ```bash
-    python manage.py createsuperuser
-    ```
+### 1. Clonar repositorio
 
-6.  **Configurar variables de entorno:**
-    *   Crea un archivo `.env` en la raíz del proyecto (mismo nivel que `manage.py`).
-    *   Agrega tu `SECRET_KEY` y `MERCADOPAGO_ACCESS_TOKEN`:
+```bash
+git clone https://github.com/deasisnatalia/Market-Project-DeAsis.git
+cd Market-Project-DeAsis/mercado
+```
 
-        ```env
-        SECRET_KEY=tu_clave_secreta_segura
-        MERCADOPAGO_ACCESS_TOKEN=tu_access_token_de_mercadopago
-        ```
+### 2. Crear entorno virtual
 
-7.  **Ejecutar el servidor de desarrollo:**
+```bash
+python -m venv venv
+```
 
-    ```bash
-    python manage.py runserver
-    ```
+Windows:
 
-8.  **Abrir el navegador** en `http://127.0.0.1:8000/`.
+```bash
+venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+source venv/bin/activate
+```
+
+### 3. Instalar dependencias
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Ejecutar migraciones
+
+```bash
+python manage.py migrate
+```
+
+### 5. Crear superusuario
+
+```bash
+python manage.py createsuperuser
+```
+
+### 6. Configurar variables de entorno
+
+Crear archivo `.env`:
+
+```env
+SECRET_KEY=tu_clave_secreta
+DEBUG=True
+```
+
+### 7. Ejecutar servidor
+
+```bash
+python manage.py runserver
+```
+
+Acceder desde:
+
+```text
+http://127.0.0.1:8000/
+```
+
+## Aprendizajes del Proyecto
+
+Durante el desarrollo de este proyecto se trabajó con:
+
+* Arquitectura MVC de Django.
+* Desarrollo de APIs REST.
+* Autenticación y autorización de usuarios.
+* Manejo de relaciones entre modelos.
+* Generación de documentos PDF.
+* Comunicación en tiempo real mediante WebSockets.
+* Gestión de archivos multimedia.
+* Control de versiones con Git y GitHub.
 
 ## Autor
-Natalia De Asis
+
+Natalia Ximena De Asis
+
+GitHub:
+https://github.com/deasisnatalia
